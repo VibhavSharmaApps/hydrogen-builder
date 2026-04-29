@@ -1,5 +1,5 @@
-import type { Feature } from './types'
-import { theme } from '../theme/config'
+import type { Feature } from '~/components/types'
+import { theme } from '~/config/theme'
 
 export interface FeatureSectionProps {
   heading: string

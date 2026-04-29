@@ -1,0 +1,106 @@
+{
+  "storeName": "Maison Éclat",
+  "pages": [
+    {
+      "path": "/",
+      "title": "Homepage",
+      "components": [
+        {
+          "type": "AnnouncementBar",
+          "props": {
+            "text": "Complimentary shipping on orders over £350 — worldwide delivery available",
+            "backgroundColor": "bg-neutral-950",
+            "dismissible": true
+          }
+        },
+        {
+          "type": "Navigation",
+          "props": {
+            "logo": "MAISON ÉCLAT",
+            "menuItems": [
+              {
+                "label": "Women",
+                "href": "/collections/women",
+                "children": [
+                  { "label": "Ready-to-Wear", "href": "/collections/rtw" },
+                  { "label": "Accessories", "href": "/collections/accessories" }
+                ]
+              },
+              { "label": "Men", "href": "/collections/men" },
+              { "label": "New Arrivals", "href": "/collections/new" }
+            ],
+            "sticky": true
+          }
+        },
+        {
+          "type": "HeroSection",
+          "props": {
+            "heading": "The Quietude Collection",
+            "subheading": "Autumn / Winter 2026",
+            "ctaText": "Discover",
+            "ctaLink": "/collections/quietude",
+            "backgroundImage": "https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1400",
+            "overlayOpacity": 0.25,
+            "variant": "full-bleed"
+          }
+        },
+        {
+          "type": "ProductGrid",
+          "props": {
+            "columns": 3,
+            "productsPerPage": 6,
+            "collectionHandle": "new-arrivals"
+          }
+        },
+        {
+          "type": "FeatureSection",
+          "props": {
+            "heading": "Our Promise",
+            "features": [
+              { "icon": "→", "title": "Complimentary Shipping", "description": "On all orders over £350, worldwide." },
+              { "icon": "○", "title": "Easy Returns", "description": "Thirty days, no questions asked." },
+              { "icon": "◇", "title": "Sustainable Materials", "description": "Responsible sourcing throughout." },
+              { "icon": "∞", "title": "Lifetime Care", "description": "Repair and restoration for all pieces." }
+            ]
+          }
+        },
+        {
+          "type": "CTABlock",
+          "props": {
+            "heading": "The New Collection",
+            "body": "Considered design. Exceptional materials. Available now.",
+            "buttonText": "Explore",
+            "buttonLink": "/collections/new",
+            "backgroundColor": "bg-neutral-100"
+          }
+        },
+        {
+          "type": "Footer",
+          "props": {
+            "columns": [
+              {
+                "heading": "Collections",
+                "links": [
+                  { "label": "Women", "href": "/collections/women" },
+                  { "label": "Men", "href": "/collections/men" },
+                  { "label": "New Arrivals", "href": "/collections/new" }
+                ]
+              },
+              {
+                "heading": "Support",
+                "links": [
+                  { "label": "Contact", "href": "/contact" },
+                  { "label": "Shipping and Returns", "href": "/shipping" }
+                ]
+              }
+            ],
+            "socialIcons": [
+              { "platform": "instagram", "href": "https://instagram.com" }
+            ],
+            "showNewsletter": true
+          }
+        }
+      ]
+    }
+  ]
+}

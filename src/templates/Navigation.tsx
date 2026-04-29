@@ -1,5 +1,6 @@
 import { useState } from 'react'
 import type { MenuItem } from './types'
+import { theme } from '../theme/config'
 
 export interface NavigationProps {
   logo: string
@@ -28,14 +29,14 @@ export const defaultProps: NavigationProps = {
 function MegaMenuItem({ item }: { item: MenuItem }) {
   return (
     <li className="relative group">
-      <a href={item.href} className="text-xs tracking-widest uppercase text-neutral-600 hover:text-neutral-950 transition-colors">
+      <a href={item.href} className={`text-xs tracking-widest uppercase ${theme.text.link} ${theme.hover.textPrimary} transition-colors`}>
         {item.label}
       </a>
       {item.children && (
         <div className="absolute top-full left-0 pt-3 hidden group-hover:block z-50">
-          <div className="bg-white border border-neutral-100 shadow-sm py-6 px-8 flex flex-col gap-3 min-w-48">
+          <div className={`${theme.bg.white} border ${theme.border.light} shadow-sm py-6 px-8 flex flex-col gap-3 min-w-48`}>
             {item.children.map((child) => (
-              <a key={child.href} href={child.href} className="text-xs tracking-wide text-zinc-500 hover:text-neutral-950 transition-colors whitespace-nowrap">
+              <a key={child.href} href={child.href} className={`text-xs tracking-wide ${theme.text.body} ${theme.hover.textPrimary} transition-colors whitespace-nowrap`}>
                 {child.label}
               </a>
             ))}
@@ -48,15 +49,15 @@ function MegaMenuItem({ item }: { item: MenuItem }) {
 
 function MobileMenu({ items, onClose }: { items: MenuItem[]; onClose: () => void }) {
   return (
-    <div className="fixed inset-0 z-40 bg-white flex flex-col pt-16 px-8 gap-1">
-      <button onClick={onClose} className="absolute top-5 right-6 text-neutral-400 hover:text-neutral-950 text-2xl leading-none" aria-label="Close menu">×</button>
+    <div className={`fixed inset-0 z-40 ${theme.bg.white} flex flex-col pt-16 px-8 gap-1`}>
+      <button onClick={onClose} className={`absolute top-5 right-6 ${theme.text.muted} ${theme.hover.textPrimary} text-2xl leading-none`} aria-label="Close menu">×</button>
       {items.map((item) => (
-        <div key={item.href} className="py-3 border-b border-neutral-100">
-          <a href={item.href} className="text-sm tracking-widest uppercase text-neutral-950">{item.label}</a>
+        <div key={item.href} className={`py-3 border-b ${theme.border.light}`}>
+          <a href={item.href} className={`text-sm tracking-widest uppercase ${theme.text.primary}`}>{item.label}</a>
           {item.children && (
             <div className="mt-3 flex flex-col gap-2 pl-4">
               {item.children.map((child) => (
-                <a key={child.href} href={child.href} className="text-xs tracking-wide text-zinc-500">{child.label}</a>
+                <a key={child.href} href={child.href} className={`text-xs tracking-wide ${theme.text.body}`}>{child.label}</a>
               ))}
             </div>
           )}
@@ -71,13 +72,13 @@ export default function Navigation({ logo, menuItems, sticky }: NavigationProps)
 
   return (
     <>
-      <nav className={`w-full bg-white border-b border-neutral-100 ${sticky ? 'sticky top-0 z-50' : ''}`}>
+      <nav className={`w-full ${theme.bg.white} border-b ${theme.border.light} ${sticky ? 'sticky top-0 z-50' : ''}`}>
         <div className="max-w-7xl mx-auto px-6 h-16 flex items-center justify-between">
-          <a href="/" className="text-sm tracking-widest font-medium text-neutral-950">{logo}</a>
+          <a href="/" className={`text-sm tracking-widest font-medium ${theme.text.primary}`}>{logo}</a>
           <ul className="hidden md:flex items-center gap-8">
             {menuItems.map((item) => <MegaMenuItem key={item.href} item={item} />)}
           </ul>
-          <button onClick={() => setIsOpen(true)} className="md:hidden text-neutral-950 text-xs tracking-widest uppercase" aria-label="Open menu">
+          <button onClick={() => setIsOpen(true)} className={`md:hidden ${theme.text.primary} text-xs tracking-widest uppercase`} aria-label="Open menu">
             Menu
           </button>
         </div>

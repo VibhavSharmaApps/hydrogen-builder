@@ -1,4 +1,4 @@
-import { theme } from '../theme/config'
+import { theme } from '~/config/theme'
 
 export interface HeroSectionProps {
   heading: string

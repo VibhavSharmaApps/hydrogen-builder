@@ -1,5 +1,5 @@
-import type { FooterColumn, SocialLink, SocialPlatform } from './types'
-import { theme } from '../theme/config'
+import type { FooterColumn, SocialLink, SocialPlatform } from '~/components/types'
+import { theme } from '~/config/theme'
 
 export interface FooterProps {
   columns: FooterColumn[]

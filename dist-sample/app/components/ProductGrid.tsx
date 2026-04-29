@@ -1,10 +1,11 @@
-import type { ProductItem } from './types'
-import { theme } from '../theme/config'
+import type { ProductItem } from '~/components/types'
+import { theme } from '~/config/theme'
 
 export interface ProductGridProps {
   columns: 2 | 3 | 4
   productsPerPage: number
   collectionHandle: string
+  products?: ProductItem[]
 }
 
 export const defaultProps: ProductGridProps = {
@@ -46,8 +47,8 @@ function ProductCard({ product }: { product: ProductItem }) {
   )
 }
 
-export default function ProductGrid({ columns, productsPerPage, collectionHandle }: ProductGridProps) {
-  const visibleProducts = MOCK_PRODUCTS.slice(0, productsPerPage)
+export default function ProductGrid({ columns, productsPerPage, collectionHandle, products }: ProductGridProps) {
+  const visibleProducts = (products ?? MOCK_PRODUCTS).slice(0, productsPerPage)
 
   return (
     <section className="w-full max-w-7xl mx-auto px-4 md:px-6 py-12" data-collection={collectionHandle}>

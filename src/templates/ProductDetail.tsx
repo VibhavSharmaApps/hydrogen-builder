@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import { theme } from '../theme/config'
 
 export interface ProductDetailProps {
   layout: 'stacked' | 'side-by-side'
@@ -43,12 +44,12 @@ export default function ProductDetail({ layout, showReviewsPlaceholder, showRela
       <div className={wrapperClass}>
         {/* Images */}
         <div className="w-full md:w-1/2">
-          <div className="aspect-[3/4] overflow-hidden bg-neutral-100">
+          <div className={`aspect-[3/4] overflow-hidden ${theme.bg.light}`}>
             <img src={mainImage} alt={MOCK_PRODUCT.title} className="w-full h-full object-cover" />
           </div>
           <div className="mt-3 flex gap-2">
             {MOCK_PRODUCT.images.map((img, i) => (
-              <button key={img} onClick={() => setActiveImage(i)} className={`w-16 h-20 overflow-hidden border-2 transition-colors ${activeImage === i ? 'border-neutral-950' : 'border-transparent'}`}>
+              <button key={img} onClick={() => setActiveImage(i)} className={`w-16 h-20 overflow-hidden border-2 transition-colors ${activeImage === i ? theme.border.primary : 'border-transparent'}`}>
                 <img src={img} alt="" className="w-full h-full object-cover" />
               </button>
             ))}
@@ -58,52 +59,52 @@ export default function ProductDetail({ layout, showReviewsPlaceholder, showRela
         {/* Details */}
         <div className="w-full md:w-1/2 flex flex-col gap-6 md:pt-8">
           <div>
-            <h1 className="text-3xl md:text-4xl font-thin text-neutral-950 tracking-tight">{MOCK_PRODUCT.title}</h1>
-            <p className="mt-2 text-sm text-zinc-400">{MOCK_PRODUCT.price}</p>
+            <h1 className={`text-3xl md:text-4xl ${theme.font.heading} ${theme.text.primary} tracking-tight`}>{MOCK_PRODUCT.title}</h1>
+            <p className={`mt-2 text-sm ${theme.text.accent}`}>{MOCK_PRODUCT.price}</p>
           </div>
           <div className="flex flex-col gap-3">
-            <p className="text-xs tracking-widest uppercase text-zinc-400">Select Size</p>
+            <p className={`text-xs tracking-widest uppercase ${theme.text.accent}`}>Select Size</p>
             <div className="flex flex-wrap gap-2">
               {MOCK_PRODUCT.sizes.map((size) => (
                 <button
                   key={size}
                   onClick={() => setSelectedSize(size)}
-                  className={`w-10 h-10 flex items-center justify-center text-xs tracking-wide border transition-colors ${selectedSize === size ? 'border-neutral-950 bg-neutral-950 text-white' : 'border-neutral-200 text-neutral-950 hover:border-neutral-950'}`}
+                  className={`w-10 h-10 flex items-center justify-center text-xs tracking-wide border transition-colors ${selectedSize === size ? `${theme.border.primary} ${theme.bg.dark} ${theme.text.white}` : `${theme.border.subtle} ${theme.text.primary} ${theme.hover.borderPrimary}`}`}
                 >
                   {size}
                 </button>
               ))}
             </div>
           </div>
-          <button className="w-full md:max-w-xs border border-neutral-950 bg-neutral-950 text-white py-4 text-xs tracking-widest uppercase hover:bg-white hover:text-neutral-950 transition-colors duration-300">
+          <button className={`w-full md:max-w-xs border ${theme.border.primary} ${theme.bg.dark} ${theme.text.white} py-4 text-xs tracking-widest uppercase ${theme.hover.bgWhite} ${theme.hover.textPrimary} transition-colors duration-300`}>
             Add to Bag
           </button>
-          <p className="text-sm font-light text-zinc-500 leading-relaxed max-w-md">{MOCK_PRODUCT.description}</p>
+          <p className={`text-sm ${theme.font.body} ${theme.text.body} leading-relaxed max-w-md`}>{MOCK_PRODUCT.description}</p>
         </div>
       </div>
 
       {showReviewsPlaceholder && (
-        <div className="mt-16 pt-12 border-t border-neutral-100">
-          <p className="text-xs tracking-widest uppercase text-zinc-400 mb-6">Reviews</p>
+        <div className={`mt-16 pt-12 border-t ${theme.border.light}`}>
+          <p className={`text-xs tracking-widest uppercase ${theme.text.accent} mb-6`}>Reviews</p>
           <div className="flex flex-col gap-4 max-w-lg">
-            <div className="bg-neutral-100 h-4 rounded w-3/4" />
-            <div className="bg-neutral-100 h-4 rounded w-full" />
-            <div className="bg-neutral-100 h-4 rounded w-2/3" />
+            <div className={`${theme.bg.light} h-4 rounded w-3/4`} />
+            <div className={`${theme.bg.light} h-4 rounded w-full`} />
+            <div className={`${theme.bg.light} h-4 rounded w-2/3`} />
           </div>
         </div>
       )}
 
       {showRelated && (
-        <div className="mt-16 pt-12 border-t border-neutral-100">
-          <p className="text-xs tracking-widest uppercase text-zinc-400 mb-8">You May Also Like</p>
+        <div className={`mt-16 pt-12 border-t ${theme.border.light}`}>
+          <p className={`text-xs tracking-widest uppercase ${theme.text.accent} mb-8`}>You May Also Like</p>
           <div className="grid grid-cols-2 md:grid-cols-4 gap-4 md:gap-6">
             {RELATED.map((item) => (
               <a key={item.handle} href={`/products/${item.handle}`} className="group">
-                <div className="aspect-[3/4] overflow-hidden bg-neutral-100">
+                <div className={`aspect-[3/4] overflow-hidden ${theme.bg.light}`}>
                   <img src={item.imageUrl} alt={item.title} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" />
                 </div>
-                <p className="mt-3 text-xs tracking-wide text-neutral-950">{item.title}</p>
-                <p className="mt-1 text-xs text-zinc-400">{item.price}</p>
+                <p className={`mt-3 text-xs tracking-wide ${theme.text.primary}`}>{item.title}</p>
+                <p className={`mt-1 text-xs ${theme.text.accent}`}>{item.price}</p>
               </a>
             ))}
           </div>

@@ -1,0 +1,37 @@
+{
+  "name": "maison-éclat",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "shopify hydrogen build",
+    "dev": "shopify hydrogen dev --codegen-unstable",
+    "preview": "shopify hydrogen preview",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@remix-run/react": "2.8.1",
+    "@shopify/hydrogen": "2024.4.3",
+    "@shopify/remix-oxygen": "2.0.7",
+    "graphql": "^16.6.0",
+    "isbot": "^4.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0"
+  },
+  "devDependencies": {
+    "@remix-run/dev": "2.8.1",
+    "@shopify/cli": "3.61.0",
+    "@shopify/mini-oxygen": "^3.0.0",
+    "@shopify/oxygen-workers-types": "^4.0.0",
+    "@types/react": "^18.2.60",
+    "@types/react-dom": "^18.2.19",
+    "autoprefixer": "^10.4.17",
+    "postcss": "^8.4.35",
+    "tailwindcss": "^3.4.1",
+    "typescript": "^5.2.2",
+    "vite": "^5.1.0",
+    "vite-tsconfig-paths": "^5.0.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
