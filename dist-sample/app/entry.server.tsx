@@ -13,7 +13,15 @@ export default function handleRequest(
   responseHeaders: Headers,
   remixContext: EntryContext,
 ) {
-  const { nonce, header, NonceProvider } = createContentSecurityPolicy()
+  const { nonce, header, NonceProvider } = createContentSecurityPolicy({
+    imgSrc: [
+      "'self'",
+      'https://images.unsplash.com',
+      'https://cdn.shopify.com',
+      'https://cdn.shopifycdn.net',
+      'data:',
+    ],
+  })
   const userAgent = request.headers.get('user-agent')
 
   return new Promise<Response>((resolve, reject) => {

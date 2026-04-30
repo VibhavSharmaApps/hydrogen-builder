@@ -34,19 +34,12 @@ export default function App() {
       <body>
         <AnnouncementBar
           text="Complimentary shipping on orders over £350 — worldwide delivery available"
-          backgroundColor={theme.bg.dark}
+          backgroundColor="bg-neutral-950"
           dismissible={true}
         />
         <Navigation
           logo="MAISON ÉCLAT"
-          menuItems={[
-            { label: 'Women', href: '/collections/women', children: [
-              { label: 'Ready-to-Wear', href: '/collections/rtw' },
-              { label: 'Accessories', href: '/collections/accessories' },
-            ]},
-            { label: 'Men', href: '/collections/men' },
-            { label: 'New Arrivals', href: '/collections/new' },
-          ]}
+          menuItems={[{ label: "Women", href: "/collections/women", children: [{ label: "Ready-to-Wear", href: "/collections/rtw" }, { label: "Accessories", href: "/collections/accessories" }] }, { label: "Men", href: "/collections/men" }, { label: "New Arrivals", href: "/collections/new" }]}
           sticky={true}
           onCartClick={() => setCartOpen(true)}
         />
@@ -54,18 +47,8 @@ export default function App() {
           <Outlet />
         </main>
         <Footer
-          columns={[
-            { heading: 'Collections', links: [
-              { label: 'Women', href: '/collections/women' },
-              { label: 'Men', href: '/collections/men' },
-              { label: 'New Arrivals', href: '/collections/new' },
-            ]},
-            { heading: 'Support', links: [
-              { label: 'Contact', href: '/contact' },
-              { label: 'Shipping and Returns', href: '/shipping' },
-            ]},
-          ]}
-          socialIcons={[{ platform: 'instagram', href: 'https://instagram.com' }]}
+          columns={[{ heading: "Collections", links: [{ label: "Women", href: "/collections/women" }, { label: "Men", href: "/collections/men" }, { label: "New Arrivals", href: "/collections/new" }] }, { heading: "Support", links: [{ label: "Contact", href: "/contact" }, { label: "Shipping and Returns", href: "/shipping" }] }]}
+          socialIcons={[{ platform: "instagram", href: "https://instagram.com" }]}
           showNewsletter={true}
         />
         <Cart

@@ -6,8 +6,11 @@ import { COLLECTION_QUERY } from '~/lib/queries'
 
 export async function loader({ context, params }: LoaderFunctionArgs) {
   const { storefront } = context
-  if (!storefront) throw new Response('Not found', { status: 404 })
   const { handle } = params
+  if (!storefront) {
+    const title = (handle ?? 'collection').split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+    return { products: undefined, collectionTitle: title }
+  }
   if (!handle) throw new Response('Not found', { status: 404 })
   const { collection } = await storefront.query(COLLECTION_QUERY, {
     variables: { handle, first: 12 },

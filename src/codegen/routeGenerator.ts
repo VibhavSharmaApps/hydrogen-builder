@@ -85,12 +85,13 @@ function buildJsx(components: ComponentDescriptor[], hasLoader: boolean): string
     if (comp.type === 'ProductDetail') extraProps.product = '{loaderData.product}'
 
     const allProps = { ...comp.props }
-    const serialized = serializeProps(allProps)
+    const indent = '\n        '
+    const serialized = serializeProps(allProps).split('\n    ').join(indent)
     const extras = Object.entries(extraProps)
       .map(([k, v]) => `${k}=${v}`)
-      .join('\n    ')
+      .join(indent)
 
-    const propStr = [serialized, extras].filter(Boolean).join('\n    ')
+    const propStr = [serialized, extras].filter(Boolean).join(indent)
     return propStr
       ? `      <${comp.type}\n        ${propStr}\n      />`
       : `      <${comp.type} />`

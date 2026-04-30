@@ -23,29 +23,29 @@ export default function Index() {
     <>
       <HeroSection
         heading="The Quietude Collection"
-    subheading="Autumn / Winter 2026"
-    ctaText="Discover"
-    ctaLink="/collections/quietude"
-    backgroundImage="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1400"
-    overlayOpacity={0.25}
-    variant="full-bleed"
+        subheading="Autumn / Winter 2026"
+        ctaText="Discover"
+        ctaLink="/collections/quietude"
+        backgroundImage="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=1400"
+        overlayOpacity={0.25}
+        variant="full-bleed"
       />
       <ProductGrid
         columns={3}
-    productsPerPage={6}
-    collectionHandle="new-arrivals"
-    products={loaderData.products}
+        productsPerPage={6}
+        collectionHandle="new-arrivals"
+        products={loaderData.products}
       />
       <FeatureSection
         heading="Our Promise"
-    features={[{ icon: "→", title: "Complimentary Shipping", description: "On all orders over £350, worldwide." }, { icon: "○", title: "Easy Returns", description: "Thirty days, no questions asked." }, { icon: "◇", title: "Sustainable Materials", description: "Responsible sourcing throughout." }, { icon: "∞", title: "Lifetime Care", description: "Repair and restoration for all pieces." }]}
+        features={[{ icon: "→", title: "Complimentary Shipping", description: "On all orders over £350, worldwide." }, { icon: "○", title: "Easy Returns", description: "Thirty days, no questions asked." }, { icon: "◇", title: "Sustainable Materials", description: "Responsible sourcing throughout." }, { icon: "∞", title: "Lifetime Care", description: "Repair and restoration for all pieces." }]}
       />
       <CTABlock
         heading="The New Collection"
-    body="Considered design. Exceptional materials. Available now."
-    buttonText="Explore"
-    buttonLink="/collections/new"
-    backgroundColor="bg-neutral-100"
+        body="Considered design. Exceptional materials. Available now."
+        buttonText="Explore"
+        buttonLink="/collections/new"
+        backgroundColor="bg-neutral-100"
       />
     </>
   )

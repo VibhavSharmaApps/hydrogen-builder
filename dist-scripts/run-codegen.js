@@ -179,10 +179,68 @@ interface Env {
 }
 `;
 }
-function generateRootTsx(storeName) {
+function serializeValue(value) {
+  if (value === null) return "null";
+  if (value === void 0) return "undefined";
+  if (typeof value === "boolean") return String(value);
+  if (typeof value === "number") return String(value);
+  if (typeof value === "string") return JSON.stringify(value);
+  if (typeof value === "function") {
+    throw new Error("Cannot serialize function values in component props");
+  }
+  if (Array.isArray(value)) {
+    if (value.length === 0) return "[]";
+    const items = value.map(serializeValue).join(", ");
+    return `[${items}]`;
+  }
+  if (typeof value === "object") {
+    const entries = Object.entries(value);
+    if (entries.length === 0) return "{}";
+    const props = entries.map(([k, v]) => `${k}: ${serializeValue(v)}`).join(", ");
+    return `{ ${props} }`;
+  }
+  return String(value);
+}
+function serializeProps(props) {
+  return Object.entries(props).map(([key, value]) => {
+    if (typeof value === "string") return `${key}=${JSON.stringify(value)}`;
+    return `${key}={${serializeValue(value)}}`;
+  }).join("\n    ");
+}
+function indent(propStr) {
+  return propStr.split("\n    ").join("\n          ");
+}
+function generateRootTsx(storeName, layout = {}) {
+  const { announcementBar, navigation, footer } = layout;
+  const abProps = announcementBar ? indent(serializeProps(announcementBar)) : `text="Complimentary shipping on orders over £350 — worldwide delivery available"
+          backgroundColor={theme.bg.dark}
+          dismissible={true}`;
+  const navJsonProps = navigation ? indent(serializeProps(navigation)) : `logo="${storeName.toUpperCase()}"
+          menuItems={[
+            { label: 'Women', href: '/collections/women', children: [
+              { label: 'Ready-to-Wear', href: '/collections/rtw' },
+              { label: 'Accessories', href: '/collections/accessories' },
+            ]},
+            { label: 'Men', href: '/collections/men' },
+            { label: 'New Arrivals', href: '/collections/new' },
+          ]}
+          sticky={true}`;
+  const navProps = navJsonProps + "\n          onCartClick={() => setCartOpen(true)}";
+  const footerProps = footer ? indent(serializeProps(footer)) : `columns={[
+            { heading: 'Collections', links: [
+              { label: 'Women', href: '/collections/women' },
+              { label: 'Men', href: '/collections/men' },
+              { label: 'New Arrivals', href: '/collections/new' },
+            ]},
+            { heading: 'Support', links: [
+              { label: 'Contact', href: '/contact' },
+              { label: 'Shipping and Returns', href: '/shipping' },
+            ]},
+          ]}
+          socialIcons={[{ platform: 'instagram', href: 'https://instagram.com' }]}
+          showNewsletter={true}`;
   return `import { useState } from 'react'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteLoaderData } from '@remix-run/react'
-import { CartProvider } from '@shopify/hydrogen'
 import type { LoaderFunctionArgs } from '@shopify/remix-oxygen'
 import AnnouncementBar from '~/components/AnnouncementBar'
 import Navigation from '~/components/Navigation'
@@ -193,7 +251,7 @@ import stylesheet from '~/styles/app.css?url'
 import { theme } from '~/config/theme'
 
 export async function loader({ context }: LoaderFunctionArgs) {
-  const cart = await context.cart.get()
+  const cart = context.cart ? await context.cart.get() : null
   return { cart }
 }
 
@@ -215,49 +273,23 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <CartProvider>
-          <AnnouncementBar
-            text="Complimentary shipping on orders over £350 — worldwide delivery available"
-            backgroundColor={theme.bg.dark}
-            dismissible={true}
-          />
-          <Navigation
-            logo="${storeName.toUpperCase()}"
-            menuItems={[
-              { label: 'Women', href: '/collections/women', children: [
-                { label: 'Ready-to-Wear', href: '/collections/rtw' },
-                { label: 'Accessories', href: '/collections/accessories' },
-              ]},
-              { label: 'Men', href: '/collections/men' },
-              { label: 'New Arrivals', href: '/collections/new' },
-            ]}
-            sticky={true}
-            onCartClick={() => setCartOpen(true)}
-          />
-          <main>
-            <Outlet />
-          </main>
-          <Footer
-            columns={[
-              { heading: 'Collections', links: [
-                { label: 'Women', href: '/collections/women' },
-                { label: 'Men', href: '/collections/men' },
-                { label: 'New Arrivals', href: '/collections/new' },
-              ]},
-              { heading: 'Support', links: [
-                { label: 'Contact', href: '/contact' },
-                { label: 'Shipping and Returns', href: '/shipping' },
-              ]},
-            ]}
-            socialIcons={[{ platform: 'instagram', href: 'https://instagram.com' }]}
-            showNewsletter={true}
-          />
-          <Cart
-            cart={(data?.cart ?? null) as CartApiQueryFragment | null}
-            open={cartOpen}
-            onClose={() => setCartOpen(false)}
-          />
-        </CartProvider>
+        <AnnouncementBar
+          ${abProps}
+        />
+        <Navigation
+          ${navProps}
+        />
+        <main>
+          <Outlet />
+        </main>
+        <Footer
+          ${footerProps}
+        />
+        <Cart
+          cart={(data?.cart ?? null) as CartApiQueryFragment | null}
+          open={cartOpen}
+          onClose={() => setCartOpen(false)}
+        />
         <ScrollRestoration />
         <Scripts />
       </body>
@@ -297,7 +329,15 @@ export default function handleRequest(
   responseHeaders: Headers,
   remixContext: EntryContext,
 ) {
-  const { nonce, header, NonceProvider } = createContentSecurityPolicy()
+  const { nonce, header, NonceProvider } = createContentSecurityPolicy({
+    imgSrc: [
+      "'self'",
+      'https://images.unsplash.com',
+      'https://cdn.shopify.com',
+      'https://cdn.shopifycdn.net',
+      'data:',
+    ],
+  })
   const userAgent = request.headers.get('user-agent')
 
   return new Promise<Response>((resolve, reject) => {
@@ -362,10 +402,11 @@ function generatePackageJson(storeName) {
   return JSON.stringify({
     name,
     private: true,
+    type: "module",
     version: "1.0.0",
     scripts: {
       build: "shopify hydrogen build",
-      dev: "shopify hydrogen dev --codegen-unstable",
+      dev: "shopify hydrogen dev --codegen",
       preview: "shopify hydrogen preview",
       typecheck: "tsc --noEmit"
     },
@@ -380,8 +421,8 @@ function generatePackageJson(storeName) {
     },
     devDependencies: {
       "@remix-run/dev": "2.8.1",
-      "@shopify/cli": "3.61.0",
-      "@shopify/mini-oxygen": "^3.0.0",
+      "@shopify/cli": "^3.94.3",
+      "@shopify/mini-oxygen": "^2.2.5",
       "@shopify/oxygen-workers-types": "^4.0.0",
       "@types/react": "^18.2.60",
       "@types/react-dom": "^18.2.19",
@@ -398,14 +439,12 @@ function generatePackageJson(storeName) {
 function generateViteConfig() {
   return `import { defineConfig } from 'vite'
 import { hydrogen } from '@shopify/hydrogen/vite'
-import { oxygen } from '@shopify/mini-oxygen/vite'
 import { vitePlugin as remix } from '@remix-run/dev'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
   plugins: [
     hydrogen(),
-    oxygen(),
     remix({
       presets: [hydrogen.preset()],
       future: {
@@ -473,7 +512,7 @@ function generateStorefrontApiShim() {
 function generateQueriesLib() {
   return "export const COLLECTION_QUERY = `" + COLLECTION_QUERY + "`\n\nexport const PRODUCT_QUERY = `" + PRODUCT_QUERY + "`\n\nexport const CART_QUERY = `" + CART_QUERY + "`\n";
 }
-function generateBoilerplate(storeName) {
+function generateBoilerplate(storeName, layout = {}) {
   return {
     "package.json": generatePackageJson(storeName),
     "vite.config.ts": generateViteConfig(),
@@ -486,7 +525,7 @@ function generateBoilerplate(storeName) {
     "app/styles/app.css": "@tailwind base;\n@tailwind components;\n@tailwind utilities;\n",
     "app/lib/queries.ts": generateQueriesLib(),
     "app/types/storefrontapi.d.ts": generateStorefrontApiShim(),
-    "app/root.tsx": generateRootTsx(storeName),
+    "app/root.tsx": generateRootTsx(storeName, layout),
     "app/entry.client.tsx": generateEntryClient(),
     "app/entry.server.tsx": generateEntryServer(),
     "app/routes/cart.tsx": generateCartRoute()
@@ -933,6 +972,7 @@ import { PRODUCT_QUERY } from '~/lib/queries'
 
 export async function loader({ context, params }: LoaderFunctionArgs) {
   const { storefront } = context
+  if (!storefront) return {}
   const { handle } = params
   if (!handle) throw new Response('Not found', { status: 404 })
   const { product } = await storefront.query(PRODUCT_QUERY, {
@@ -963,6 +1003,10 @@ import { COLLECTION_QUERY } from '~/lib/queries'
 export async function loader({ context, params }: LoaderFunctionArgs) {
   const { storefront } = context
   const { handle } = params
+  if (!storefront) {
+    const title = (handle ?? 'collection').split('-').map((w) => w.charAt(0).toUpperCase() + w.slice(1)).join(' ')
+    return { products: undefined, collectionTitle: title }
+  }
   if (!handle) throw new Response('Not found', { status: 404 })
   const { collection } = await storefront.query(COLLECTION_QUERY, {
     variables: { handle, first: 12 },
@@ -994,34 +1038,6 @@ function generateInfraRoutes() {
     "app/routes/products.$handle.tsx": PRODUCT_ROUTE,
     "app/routes/collections.$handle.tsx": COLLECTION_ROUTE
   };
-}
-function serializeValue(value) {
-  if (value === null) return "null";
-  if (value === void 0) return "undefined";
-  if (typeof value === "boolean") return String(value);
-  if (typeof value === "number") return String(value);
-  if (typeof value === "string") return JSON.stringify(value);
-  if (typeof value === "function") {
-    throw new Error("Cannot serialize function values in component props");
-  }
-  if (Array.isArray(value)) {
-    if (value.length === 0) return "[]";
-    const items = value.map(serializeValue).join(", ");
-    return `[${items}]`;
-  }
-  if (typeof value === "object") {
-    const entries = Object.entries(value);
-    if (entries.length === 0) return "{}";
-    const props = entries.map(([k, v]) => `${k}: ${serializeValue(v)}`).join(", ");
-    return `{ ${props} }`;
-  }
-  return String(value);
-}
-function serializeProps(props) {
-  return Object.entries(props).map(([key, value]) => {
-    if (typeof value === "string") return `${key}=${JSON.stringify(value)}`;
-    return `${key}={${serializeValue(value)}}`;
-  }).join("\n    ");
 }
 const LAYOUT_COMPONENTS = /* @__PURE__ */ new Set(["Navigation", "AnnouncementBar", "Footer"]);
 const DATA_COMPONENTS = /* @__PURE__ */ new Set(["ProductGrid", "ProductDetail"]);
@@ -1059,6 +1075,7 @@ function buildLoader(components) {
   const lines = [
     `export async function loader(${loaderArgs}: LoaderFunctionArgs) {`,
     "  const { storefront } = context",
+    "  if (!storefront) return {}",
     "  const loaderData: Record<string, unknown> = {}"
   ];
   if (hasGrid) {
@@ -1095,9 +1112,10 @@ function buildJsx(components, hasLoader) {
     if (comp.type === "ProductGrid") extraProps.products = "{loaderData.products}";
     if (comp.type === "ProductDetail") extraProps.product = "{loaderData.product}";
     const allProps = { ...comp.props };
-    const serialized = serializeProps(allProps);
-    const extras = Object.entries(extraProps).map(([k, v]) => `${k}=${v}`).join("\n    ");
-    const propStr = [serialized, extras].filter(Boolean).join("\n    ");
+    const indent2 = "\n        ";
+    const serialized = serializeProps(allProps).split("\n    ").join(indent2);
+    const extras = Object.entries(extraProps).map(([k, v]) => `${k}=${v}`).join(indent2);
+    const propStr = [serialized, extras].filter(Boolean).join(indent2);
     return propStr ? `      <${comp.type}
         ${propStr}
       />` : `      <${comp.type} />`;
@@ -1132,15 +1150,28 @@ function generateProject(input2) {
       usedComponents.add(comp.type);
     }
   }
+  usedComponents.add("AnnouncementBar");
+  usedComponents.add("Navigation");
+  usedComponents.add("Footer");
   usedComponents.add("ProductDetail");
   usedComponents.add("ProductGrid");
+  const firstPage = pages[0];
+  const findProps = (type) => {
+    var _a;
+    return (_a = firstPage == null ? void 0 : firstPage.components.find((c) => c.type === type)) == null ? void 0 : _a.props;
+  };
+  const layout = {
+    announcementBar: findProps("AnnouncementBar"),
+    navigation: findProps("Navigation"),
+    footer: findProps("Footer")
+  };
   const routeFiles = {};
   for (const page of pages) {
     const [filePath, fileContent] = generateRoute(page);
     routeFiles[filePath] = fileContent;
   }
   return {
-    ...generateBoilerplate(storeName),
+    ...generateBoilerplate(storeName, layout),
     ...generateComponentFiles(usedComponents),
     ...generateCartFiles(),
     ...generateInfraRoutes(),

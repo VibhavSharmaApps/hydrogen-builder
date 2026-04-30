@@ -5,7 +5,7 @@ import { PRODUCT_QUERY } from '~/lib/queries'
 
 export async function loader({ context, params }: LoaderFunctionArgs) {
   const { storefront } = context
-  if (!storefront) throw new Response('Not found', { status: 404 })
+  if (!storefront) return {}
   const { handle } = params
   if (!handle) throw new Response('Not found', { status: 404 })
   const { product } = await storefront.query(PRODUCT_QUERY, {

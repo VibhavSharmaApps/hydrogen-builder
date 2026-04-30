@@ -1,4 +1,31 @@
-export function generateRootTsx(storeName: string): string {
+import { serializeProps } from './propsSerializer'
+
+export interface LayoutProps {
+  announcementBar?: Record<string, unknown>
+  navigation?: Record<string, unknown>
+  footer?: Record<string, unknown>
+}
+
+function indent(propStr: string): string {
+  return propStr.split('\n    ').join('\n          ')
+}
+
+export function generateRootTsx(storeName: string, layout: LayoutProps = {}): string {
+  const { announcementBar, navigation, footer } = layout
+
+  const abProps = announcementBar
+    ? indent(serializeProps(announcementBar))
+    : `text="Complimentary shipping on orders over £350 — worldwide delivery available"\n          backgroundColor={theme.bg.dark}\n          dismissible={true}`
+
+  const navJsonProps = navigation
+    ? indent(serializeProps(navigation))
+    : `logo="${storeName.toUpperCase()}"\n          menuItems={[\n            { label: 'Women', href: '/collections/women', children: [\n              { label: 'Ready-to-Wear', href: '/collections/rtw' },\n              { label: 'Accessories', href: '/collections/accessories' },\n            ]},\n            { label: 'Men', href: '/collections/men' },\n            { label: 'New Arrivals', href: '/collections/new' },\n          ]}\n          sticky={true}`
+  const navProps = navJsonProps + '\n          onCartClick={() => setCartOpen(true)}'
+
+  const footerProps = footer
+    ? indent(serializeProps(footer))
+    : `columns={[\n            { heading: 'Collections', links: [\n              { label: 'Women', href: '/collections/women' },\n              { label: 'Men', href: '/collections/men' },\n              { label: 'New Arrivals', href: '/collections/new' },\n            ]},\n            { heading: 'Support', links: [\n              { label: 'Contact', href: '/contact' },\n              { label: 'Shipping and Returns', href: '/shipping' },\n            ]},\n          ]}\n          socialIcons={[{ platform: 'instagram', href: 'https://instagram.com' }]}\n          showNewsletter={true}`
+
   return `import { useState } from 'react'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteLoaderData } from '@remix-run/react'
 import type { LoaderFunctionArgs } from '@shopify/remix-oxygen'
@@ -34,40 +61,16 @@ export default function App() {
       </head>
       <body>
         <AnnouncementBar
-          text="Complimentary shipping on orders over £350 — worldwide delivery available"
-          backgroundColor={theme.bg.dark}
-          dismissible={true}
+          ${abProps}
         />
         <Navigation
-          logo="${storeName.toUpperCase()}"
-          menuItems={[
-            { label: 'Women', href: '/collections/women', children: [
-              { label: 'Ready-to-Wear', href: '/collections/rtw' },
-              { label: 'Accessories', href: '/collections/accessories' },
-            ]},
-            { label: 'Men', href: '/collections/men' },
-            { label: 'New Arrivals', href: '/collections/new' },
-          ]}
-          sticky={true}
-          onCartClick={() => setCartOpen(true)}
+          ${navProps}
         />
         <main>
           <Outlet />
         </main>
         <Footer
-          columns={[
-            { heading: 'Collections', links: [
-              { label: 'Women', href: '/collections/women' },
-              { label: 'Men', href: '/collections/men' },
-              { label: 'New Arrivals', href: '/collections/new' },
-            ]},
-            { heading: 'Support', links: [
-              { label: 'Contact', href: '/contact' },
-              { label: 'Shipping and Returns', href: '/shipping' },
-            ]},
-          ]}
-          socialIcons={[{ platform: 'instagram', href: 'https://instagram.com' }]}
-          showNewsletter={true}
+          ${footerProps}
         />
         <Cart
           cart={(data?.cart ?? null) as CartApiQueryFragment | null}
@@ -115,7 +118,15 @@ export default function handleRequest(
   responseHeaders: Headers,
   remixContext: EntryContext,
 ) {
-  const { nonce, header, NonceProvider } = createContentSecurityPolicy()
+  const { nonce, header, NonceProvider } = createContentSecurityPolicy({
+    imgSrc: [
+      "'self'",
+      'https://images.unsplash.com',
+      'https://cdn.shopify.com',
+      'https://cdn.shopifycdn.net',
+      'data:',
+    ],
+  })
   const userAgent = request.headers.get('user-agent')
 
   return new Promise<Response>((resolve, reject) => {

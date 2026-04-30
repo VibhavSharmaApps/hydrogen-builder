@@ -1,6 +1,7 @@
 import { COLLECTION_QUERY, PRODUCT_QUERY, CART_QUERY } from './queries'
 import { generateServerTs } from './serverTemplate'
 import { generateRootTsx, generateEntryClient, generateEntryServer, generateCartRoute } from './rootTemplate'
+import type { LayoutProps } from './rootTemplate'
 import type { ProjectFiles } from './types'
 
 function generatePackageJson(storeName: string): string {
@@ -8,6 +9,7 @@ function generatePackageJson(storeName: string): string {
   return JSON.stringify({
     name,
     private: true,
+    type: 'module',
     version: '1.0.0',
     scripts: {
       build: 'shopify hydrogen build',
@@ -26,7 +28,7 @@ function generatePackageJson(storeName: string): string {
     },
     devDependencies: {
       '@remix-run/dev': '2.8.1',
-      '@shopify/cli': '3.61.0',
+      '@shopify/cli': '^3.94.3',
       '@shopify/mini-oxygen': '^2.2.5',
       '@shopify/oxygen-workers-types': '^4.0.0',
       '@types/react': '^18.2.60',
@@ -126,7 +128,7 @@ function generateQueriesLib(): string {
   )
 }
 
-export function generateBoilerplate(storeName: string): ProjectFiles {
+export function generateBoilerplate(storeName: string, layout: LayoutProps = {}): ProjectFiles {
   return {
     'package.json': generatePackageJson(storeName),
     'vite.config.ts': generateViteConfig(),
@@ -139,7 +141,7 @@ export function generateBoilerplate(storeName: string): ProjectFiles {
     'app/styles/app.css': '@tailwind base;\n@tailwind components;\n@tailwind utilities;\n',
     'app/lib/queries.ts': generateQueriesLib(),
     'app/types/storefrontapi.d.ts': generateStorefrontApiShim(),
-    'app/root.tsx': generateRootTsx(storeName),
+    'app/root.tsx': generateRootTsx(storeName, layout),
     'app/entry.client.tsx': generateEntryClient(),
     'app/entry.server.tsx': generateEntryServer(),
     'app/routes/cart.tsx': generateCartRoute(),
