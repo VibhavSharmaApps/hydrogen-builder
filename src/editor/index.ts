@@ -1,1 +1,1 @@
-export {}
+export { EditorLayout } from './EditorLayout'
