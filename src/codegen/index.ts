@@ -2,6 +2,7 @@ import type { BuildInput, ComponentType, ProjectFiles } from './types'
 import { generateBoilerplate } from './boilerplate'
 import { generateComponentFiles } from './componentFiles'
 import { generateCartFiles } from './cartFiles'
+import { generateInfraRoutes } from './infraRoutes'
 import { generateRoute } from './routeGenerator'
 
 export { generateProject }
@@ -17,20 +18,14 @@ function generateProject(input: BuildInput): ProjectFiles {
     }
   }
 
-  // Route files from page descriptors
+  // Infrastructure components are always required regardless of JSON content
+  usedComponents.add('ProductDetail')
+  usedComponents.add('ProductGrid')
+
+  // Route files from page descriptors (homepage section composition driven by JSON)
   const routeFiles: ProjectFiles = {}
   for (const page of pages) {
     const [filePath, fileContent] = generateRoute(page)
-    routeFiles[filePath] = fileContent
-  }
-
-  // Auto-add a /products/:handle route if ProductDetail is used but not explicitly routed
-  const hasProductRoute = Object.keys(routeFiles).some((p) => p.includes('products.'))
-  if (usedComponents.has('ProductDetail') && !hasProductRoute) {
-    const [filePath, fileContent] = generateRoute({
-      path: '/products/:handle',
-      components: [{ type: 'ProductDetail', props: { layout: 'side-by-side', showReviewsPlaceholder: true, showRelated: true } }],
-    })
     routeFiles[filePath] = fileContent
   }
 
@@ -38,6 +33,7 @@ function generateProject(input: BuildInput): ProjectFiles {
     ...generateBoilerplate(storeName),
     ...generateComponentFiles(usedComponents),
     ...generateCartFiles(),
+    ...generateInfraRoutes(), // always present; JSON routes below can override if needed
     ...routeFiles,
   }
 }

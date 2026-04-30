@@ -8,6 +8,7 @@ import { COLLECTION_QUERY } from '~/lib/queries'
 
 export async function loader({ context }: LoaderFunctionArgs) {
   const { storefront } = context
+  if (!storefront) return {}
   const loaderData: Record<string, unknown> = {}
   const { collection } = await storefront.query(COLLECTION_QUERY, {
     variables: { handle: "new-arrivals", first: 6 },

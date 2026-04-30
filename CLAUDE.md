@@ -40,10 +40,12 @@ Shopify Hydrogen storefront codebase.
 
 ## Current status
 [Update this as you build — tell Claude what's done and what's next]
-- [ ] Project scaffolded
-- [ ] Component library built
-- [ ] Editor canvas working
+## Current status
+- [x] Project scaffolded
+- [x] Component library built (8 components)
+- [x] Code generation engine working
+- [ ] Editor canvas working ← Week 2 starts here
 - [ ] Props panel working
-- [ ] Code generation engine working
 - [ ] Export/download working
+- [ ] Shopify integration
 - [ ] Fashion theme polished

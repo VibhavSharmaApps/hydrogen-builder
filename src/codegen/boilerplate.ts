@@ -11,7 +11,7 @@ function generatePackageJson(storeName: string): string {
     version: '1.0.0',
     scripts: {
       build: 'shopify hydrogen build',
-      dev: 'shopify hydrogen dev --codegen-unstable',
+      dev: 'shopify hydrogen dev --codegen',
       preview: 'shopify hydrogen preview',
       typecheck: 'tsc --noEmit',
     },
@@ -27,7 +27,7 @@ function generatePackageJson(storeName: string): string {
     devDependencies: {
       '@remix-run/dev': '2.8.1',
       '@shopify/cli': '3.61.0',
-      '@shopify/mini-oxygen': '^3.0.0',
+      '@shopify/mini-oxygen': '^2.2.5',
       '@shopify/oxygen-workers-types': '^4.0.0',
       '@types/react': '^18.2.60',
       '@types/react-dom': '^18.2.19',
@@ -45,14 +45,12 @@ function generatePackageJson(storeName: string): string {
 function generateViteConfig(): string {
   return `import { defineConfig } from 'vite'
 import { hydrogen } from '@shopify/hydrogen/vite'
-import { oxygen } from '@shopify/mini-oxygen/vite'
 import { vitePlugin as remix } from '@remix-run/dev'
 import tsconfigPaths from 'vite-tsconfig-paths'
 
 export default defineConfig({
   plugins: [
     hydrogen(),
-    oxygen(),
     remix({
       presets: [hydrogen.preset()],
       future: {

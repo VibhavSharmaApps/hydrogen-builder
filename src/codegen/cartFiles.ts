@@ -1,6 +1,6 @@
 import type { ProjectFiles } from './types'
 
-const CART_TSX = `import { CartForm, Money } from '@shopify/hydrogen'
+const CART_TSX = `import { Money } from '@shopify/hydrogen'
 import type { CartApiQueryFragment } from 'storefrontapi.generated'
 import CartLineItem from './CartLineItem'
 import { theme } from '~/config/theme'

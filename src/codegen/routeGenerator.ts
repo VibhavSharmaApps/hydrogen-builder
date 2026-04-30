@@ -44,6 +44,7 @@ function buildLoader(components: ComponentDescriptor[]): string {
   const lines: string[] = [
     `export async function loader(${loaderArgs}: LoaderFunctionArgs) {`,
     '  const { storefront } = context',
+    '  if (!storefront) return {}',
     '  const loaderData: Record<string, unknown> = {}',
   ]
   if (hasGrid) {

@@ -1,4 +1,4 @@
-import { CartForm, Money } from '@shopify/hydrogen'
+import { Money } from '@shopify/hydrogen'
 import type { CartApiQueryFragment } from 'storefrontapi.generated'
 import CartLineItem from './CartLineItem'
 import { theme } from '~/config/theme'
