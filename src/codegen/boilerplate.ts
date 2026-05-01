@@ -1,7 +1,7 @@
 import { COLLECTION_QUERY, PRODUCT_QUERY, CART_QUERY } from './queries'
 import { generateServerTs } from './serverTemplate'
 import { generateRootTsx, generateEntryClient, generateEntryServer, generateCartRoute } from './rootTemplate'
-import type { LayoutProps } from './rootTemplate'
+
 import type { ProjectFiles } from './types'
 
 function generatePackageJson(storeName: string): string {
@@ -128,7 +128,7 @@ function generateQueriesLib(): string {
   )
 }
 
-export function generateBoilerplate(storeName: string, layout: LayoutProps = {}): ProjectFiles {
+export function generateBoilerplate(storeName: string): ProjectFiles {
   return {
     'package.json': generatePackageJson(storeName),
     'vite.config.ts': generateViteConfig(),
@@ -141,7 +141,7 @@ export function generateBoilerplate(storeName: string, layout: LayoutProps = {})
     'app/styles/app.css': '@tailwind base;\n@tailwind components;\n@tailwind utilities;\n',
     'app/lib/queries.ts': generateQueriesLib(),
     'app/types/storefrontapi.d.ts': generateStorefrontApiShim(),
-    'app/root.tsx': generateRootTsx(storeName, layout),
+    'app/root.tsx': generateRootTsx(storeName),
     'app/entry.client.tsx': generateEntryClient(),
     'app/entry.server.tsx': generateEntryServer(),
     'app/routes/cart.tsx': generateCartRoute(),

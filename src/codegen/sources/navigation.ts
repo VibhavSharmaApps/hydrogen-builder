@@ -2,7 +2,7 @@
 // Changes from builder template:
 //   - Type import path updated to ~/components/types
 //   - Theme import added; all hardcoded colours replaced with theme references
-//   - Added onCartClick? prop + bag button
+//   - Cart button dispatches 'open-cart' custom event (root.tsx listens) instead of prop callback
 //   - Template literal className replaced with string concat (no ${} in generated source)
 export const ADAPTED_NAVIGATION = `import { useState } from 'react'
 import type { MenuItem } from '~/components/types'
@@ -12,7 +12,6 @@ export interface NavigationProps {
   logo: string
   menuItems: MenuItem[]
   sticky: boolean
-  onCartClick?: () => void
 }
 
 export const defaultProps: NavigationProps = {
@@ -74,7 +73,7 @@ function MobileMenu({ items, onClose }: { items: MenuItem[]; onClose: () => void
   )
 }
 
-export default function Navigation({ logo, menuItems, sticky, onCartClick }: NavigationProps) {
+export default function Navigation({ logo, menuItems, sticky }: NavigationProps) {
   const [isOpen, setIsOpen] = useState(false)
 
   return (
@@ -86,11 +85,13 @@ export default function Navigation({ logo, menuItems, sticky, onCartClick }: Nav
             {menuItems.map((item) => <MegaMenuItem key={item.href} item={item} />)}
           </ul>
           <div className="flex items-center gap-4">
-            {onCartClick && (
-              <button onClick={onCartClick} className={'hidden md:block text-xs tracking-widest uppercase transition-colors ' + theme.text.link + ' ' + theme.hover.textPrimary} aria-label="Open cart">
-                Bag
-              </button>
-            )}
+            <button
+              onClick={() => window.dispatchEvent(new CustomEvent('open-cart'))}
+              className={'hidden md:block text-xs tracking-widest uppercase transition-colors ' + theme.text.link + ' ' + theme.hover.textPrimary}
+              aria-label="Open cart"
+            >
+              Bag
+            </button>
             <button onClick={() => setIsOpen(true)} className={'md:hidden text-xs tracking-widest uppercase ' + theme.text.primary} aria-label="Open menu">
               Menu
             </button>

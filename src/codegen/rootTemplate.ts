@@ -1,41 +1,10 @@
-import { serializeProps } from './propsSerializer'
-
-export interface LayoutProps {
-  announcementBar?: Record<string, unknown>
-  navigation?: Record<string, unknown>
-  footer?: Record<string, unknown>
-}
-
-function indent(propStr: string): string {
-  return propStr.split('\n    ').join('\n          ')
-}
-
-export function generateRootTsx(storeName: string, layout: LayoutProps = {}): string {
-  const { announcementBar, navigation, footer } = layout
-
-  const abProps = announcementBar
-    ? indent(serializeProps(announcementBar))
-    : `text="Complimentary shipping on orders over £350 — worldwide delivery available"\n          backgroundColor={theme.bg.dark}\n          dismissible={true}`
-
-  const navJsonProps = navigation
-    ? indent(serializeProps(navigation))
-    : `logo="${storeName.toUpperCase()}"\n          menuItems={[\n            { label: 'Women', href: '/collections/women', children: [\n              { label: 'Ready-to-Wear', href: '/collections/rtw' },\n              { label: 'Accessories', href: '/collections/accessories' },\n            ]},\n            { label: 'Men', href: '/collections/men' },\n            { label: 'New Arrivals', href: '/collections/new' },\n          ]}\n          sticky={true}`
-  const navProps = navJsonProps + '\n          onCartClick={() => setCartOpen(true)}'
-
-  const footerProps = footer
-    ? indent(serializeProps(footer))
-    : `columns={[\n            { heading: 'Collections', links: [\n              { label: 'Women', href: '/collections/women' },\n              { label: 'Men', href: '/collections/men' },\n              { label: 'New Arrivals', href: '/collections/new' },\n            ]},\n            { heading: 'Support', links: [\n              { label: 'Contact', href: '/contact' },\n              { label: 'Shipping and Returns', href: '/shipping' },\n            ]},\n          ]}\n          socialIcons={[{ platform: 'instagram', href: 'https://instagram.com' }]}\n          showNewsletter={true}`
-
-  return `import { useState } from 'react'
+export function generateRootTsx(storeName: string): string {
+  return `import { useState, useEffect } from 'react'
 import { Links, Meta, Outlet, Scripts, ScrollRestoration, useRouteLoaderData } from '@remix-run/react'
 import type { LoaderFunctionArgs } from '@shopify/remix-oxygen'
-import AnnouncementBar from '~/components/AnnouncementBar'
-import Navigation from '~/components/Navigation'
-import Footer from '~/components/Footer'
 import Cart from '~/components/Cart'
 import type { CartApiQueryFragment } from 'storefrontapi.generated'
 import stylesheet from '~/styles/app.css?url'
-import { theme } from '~/config/theme'
 
 export async function loader({ context }: LoaderFunctionArgs) {
   const cart = context.cart ? await context.cart.get() : null
@@ -50,6 +19,12 @@ export default function App() {
   const data = useRouteLoaderData<typeof loader>('root')
   const [cartOpen, setCartOpen] = useState(false)
 
+  useEffect(() => {
+    const openCart = () => setCartOpen(true)
+    window.addEventListener('open-cart', openCart)
+    return () => window.removeEventListener('open-cart', openCart)
+  }, [])
+
   return (
     <html lang="en">
       <head>
@@ -60,18 +35,7 @@ export default function App() {
         <Links />
       </head>
       <body>
-        <AnnouncementBar
-          ${abProps}
-        />
-        <Navigation
-          ${navProps}
-        />
-        <main>
-          <Outlet />
-        </main>
-        <Footer
-          ${footerProps}
-        />
+        <Outlet />
         <Cart
           cart={(data?.cart ?? null) as CartApiQueryFragment | null}
           open={cartOpen}

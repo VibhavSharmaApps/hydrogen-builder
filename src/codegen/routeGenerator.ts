@@ -1,7 +1,6 @@
 import { serializeProps } from './propsSerializer'
 import type { ComponentDescriptor, ComponentType, PageDescriptor, ProjectFiles } from './types'
 
-const LAYOUT_COMPONENTS = new Set<ComponentType>(['Navigation', 'AnnouncementBar', 'Footer'])
 const DATA_COMPONENTS = new Set<ComponentType>(['ProductGrid', 'ProductDetail'])
 
 export function pathToFilename(path: string): string {
@@ -17,7 +16,7 @@ function needsLoader(components: ComponentDescriptor[]): boolean {
 }
 
 function buildImports(components: ComponentDescriptor[], hasLoader: boolean): string {
-  const types = [...new Set(components.filter((c) => !LAYOUT_COMPONENTS.has(c.type)).map((c) => c.type))]
+  const types = [...new Set(components.map((c) => c.type))]
   const lines: string[] = []
   if (hasLoader) {
     lines.push("import type { LoaderFunctionArgs } from '@shopify/remix-oxygen'")
@@ -74,7 +73,7 @@ function buildLoader(components: ComponentDescriptor[]): string {
 }
 
 function buildJsx(components: ComponentDescriptor[], hasLoader: boolean): string {
-  const pageComponents = components.filter((c) => !LAYOUT_COMPONENTS.has(c.type))
+  const pageComponents = components
   if (pageComponents.length === 0) return '  return null'
 
   const loaderLine = hasLoader ? '  const loaderData = useLoaderData<typeof loader>()\n' : ''
