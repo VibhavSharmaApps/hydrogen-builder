@@ -1,5 +1,7 @@
 import type { CanvasItem } from './types'
 import type { ComponentType } from '../codegen/types'
+import { useStorefrontCollection } from './useStorefrontCollection'
+import type { PreviewProduct } from './useStorefrontCollection'
 
 function PreviewAnnouncementBar({ props }: { props: Record<string, unknown> }) {
   const bg = (props.backgroundColor as string) || 'bg-neutral-950'
@@ -87,17 +89,43 @@ function PreviewFeatureSection({ props }: { props: Record<string, unknown> }) {
 function PreviewProductGrid({ props }: { props: Record<string, unknown> }) {
   const cols = Number(props.columns) || 3
   const gridClass = cols === 2 ? 'grid-cols-2' : cols === 4 ? 'grid-cols-4' : 'grid-cols-3'
-  const count = Math.min(Number(props.productsPerPage) || 3, cols)
+  const perPage = Number(props.productsPerPage) || 3
+  const handle = (props.collectionHandle as string) ?? ''
+  const { products, status } = useStorefrontCollection(handle, perPage)
+  const showLive = status === 'success' && products.length > 0
+  const slots = showLive ? products.slice(0, perPage) : Array.from({ length: Math.min(perPage, cols) })
+
   return (
     <div className="w-full py-8 px-8 bg-white">
       <div className={`grid ${gridClass} gap-4`}>
-        {Array.from({ length: count }).map((_, i) => (
-          <div key={i}>
-            <div className="bg-neutral-100 aspect-[3/4] rounded-sm" />
-            <div className="mt-2 h-2 bg-neutral-200 rounded w-3/4" />
-            <div className="mt-1 h-2 bg-neutral-100 rounded w-1/2" />
-          </div>
-        ))}
+        {slots.map((slot, i) => {
+          if (showLive) {
+            const product = slot as PreviewProduct
+            return (
+              <div key={product.id}>
+                <div className="bg-neutral-100 aspect-[3/4] rounded-sm overflow-hidden">
+                  {product.imageUrl && (
+                    <img
+                      src={product.imageUrl}
+                      alt={product.imageAlt}
+                      className="w-full h-full object-cover"
+                      loading="lazy"
+                    />
+                  )}
+                </div>
+                <p className="mt-2 text-[11px] text-neutral-900 truncate">{product.title}</p>
+                <p className="mt-0.5 text-[11px] text-neutral-500">{product.price}</p>
+              </div>
+            )
+          }
+          return (
+            <div key={i}>
+              <div className="bg-neutral-100 aspect-[3/4] rounded-sm" />
+              <div className="mt-2 h-2 bg-neutral-200 rounded w-3/4" />
+              <div className="mt-1 h-2 bg-neutral-100 rounded w-1/2" />
+            </div>
+          )
+        })}
       </div>
     </div>
   )
@@ -144,12 +172,30 @@ function PreviewFooter() {
 
 function PreviewProductDetail({ props }: { props: Record<string, unknown> }) {
   const isStack = (props.layout as string) === 'stacked'
+  // Canvas preview has no URL handle, so fetch the first product from Shopify's
+  // default 'frontpage' collection as a representative sample.
+  const { products, status } = useStorefrontCollection('frontpage', 1)
+  const live = status === 'success' && products[0] ? products[0] : null
+
   return (
     <div className={`w-full py-6 px-8 bg-white flex ${isStack ? 'flex-col' : 'flex-row'} gap-8`}>
-      <div className={`${isStack ? 'w-full' : 'w-1/2'} bg-neutral-100 aspect-[3/4] rounded-sm flex-shrink-0`} />
+      <div className={`${isStack ? 'w-full' : 'w-1/2'} bg-neutral-100 aspect-[3/4] rounded-sm flex-shrink-0 overflow-hidden`}>
+        {live?.imageUrl && (
+          <img src={live.imageUrl} alt={live.imageAlt} className="w-full h-full object-cover" loading="lazy" />
+        )}
+      </div>
       <div className={`${isStack ? 'w-full' : 'w-1/2'} flex flex-col gap-3 py-2`}>
-        <div className="h-5 bg-neutral-200 rounded w-3/4" />
-        <div className="h-3 bg-neutral-100 rounded w-1/4" />
+        {live ? (
+          <>
+            <p className="text-[14px] text-neutral-900 font-medium truncate">{live.title}</p>
+            <p className="text-[12px] text-neutral-500">{live.price}</p>
+          </>
+        ) : (
+          <>
+            <div className="h-5 bg-neutral-200 rounded w-3/4" />
+            <div className="h-3 bg-neutral-100 rounded w-1/4" />
+          </>
+        )}
         <div className="flex gap-2 mt-2">
           {['XS', 'S', 'M', 'L'].map(s => (
             <div key={s} className="w-8 h-8 border border-neutral-200 flex items-center justify-center text-xs text-neutral-400">{s}</div>

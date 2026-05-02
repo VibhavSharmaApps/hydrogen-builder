@@ -1,5 +1,9 @@
-import { EditorLayout } from './editor'
+import { EditorLayout, ShopifyCredentialsProvider } from './editor'
 
 export default function App() {
-  return <EditorLayout />
+  return (
+    <ShopifyCredentialsProvider>
+      <EditorLayout />
+    </ShopifyCredentialsProvider>
+  )
 }

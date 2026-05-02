@@ -17,33 +17,11 @@ import { PropsPanel } from './PropsPanel'
 import { COMPONENT_META } from './defaults'
 import { generateProject } from '../codegen'
 import { zipProject, downloadProject } from '../export'
+import { DesktopIcon, TabletIcon, MobileIcon, GearIcon } from './icons'
+import { SettingsModal } from './SettingsModal'
+import { useShopifyCredentials } from './useShopifyCredentials'
 
 // ── Viewport toggle icons ─────────────────────────────────────────────────────
-
-function DesktopIcon() {
-  return (
-    <svg width="14" height="12" viewBox="0 0 14 12" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round">
-      <rect x="1" y="1" width="12" height="8" rx="1" />
-      <path d="M5 11h4M7 9v2" />
-    </svg>
-  )
-}
-function TabletIcon() {
-  return (
-    <svg width="9" height="12" viewBox="0 0 9 12" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round">
-      <rect x="0.625" y="0.625" width="7.75" height="10.75" rx="1.375" />
-      <circle cx="4.5" cy="9.25" r="0.75" fill="currentColor" stroke="none" />
-    </svg>
-  )
-}
-function MobileIcon() {
-  return (
-    <svg width="7" height="12" viewBox="0 0 7 12" fill="none" stroke="currentColor" strokeWidth="1.25" strokeLinecap="round">
-      <rect x="0.625" y="0.625" width="5.75" height="10.75" rx="1.375" />
-      <circle cx="3.5" cy="9.25" r="0.75" fill="currentColor" stroke="none" />
-    </svg>
-  )
-}
 
 const VIEWPORT_TABS: { id: Viewport; icon: JSX.Element; title: string }[] = [
   { id: 'desktop', icon: <DesktopIcon />, title: 'Desktop · 1280px' },
@@ -73,6 +51,9 @@ export function EditorLayout() {
   const [activeType, setActiveType]   = useState<ComponentType | null>(null)
   const [viewport, setViewport]       = useState<Viewport>('desktop')
   const [exporting, setExporting]     = useState(false)
+  const [settingsOpen, setSettingsOpen] = useState(false)
+  const { credentials, save: saveCredentials, clear: clearCredentials, isConnected } =
+    useShopifyCredentials()
 
   const sensors = useSensors(
     useSensor(PointerSensor, { activationConstraint: { distance: 5 } })
@@ -167,11 +148,23 @@ export function EditorLayout() {
           </span>
         </div>
 
-        {/* Right — layers count + export */}
+        {/* Right — layers count + settings + export */}
         <div className="flex items-center gap-3 justify-end">
           <span className="text-[11px] text-neutral-700 tabular-nums select-none">
             {state.items.length} {state.items.length === 1 ? 'layer' : 'layers'}
           </span>
+          <span className="w-px h-3 bg-white/10" />
+          <button
+            onClick={() => setSettingsOpen(true)}
+            title={isConnected ? 'Shopify connected' : 'Connect Shopify store'}
+            aria-label="Settings"
+            className="relative h-7 w-7 rounded-[5px] flex items-center justify-center text-neutral-500 hover:text-neutral-200 hover:bg-white/[0.05] transition-colors"
+          >
+            <GearIcon />
+            {isConnected && (
+              <span className="absolute top-1 right-1 w-1.5 h-1.5 rounded-full bg-green-500 ring-2 ring-[#0f0f0f]" />
+            )}
+          </button>
           <span className="w-px h-3 bg-white/10" />
           <button
             onClick={handleExport}
@@ -206,6 +199,14 @@ export function EditorLayout() {
           }
         />
       </div>
+
+      <SettingsModal
+        open={settingsOpen}
+        initialCredentials={credentials}
+        onSave={(c) => { saveCredentials(c); setSettingsOpen(false) }}
+        onClear={() => { clearCredentials(); setSettingsOpen(false) }}
+        onClose={() => setSettingsOpen(false)}
+      />
     </div>
   )
 }

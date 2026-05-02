@@ -47,31 +47,37 @@ Shopify Hydrogen storefront codebase.
 - [x] Storefront API query stubs included (collection, product, cart)
 - [x] Theme config centralized in app/config/theme.ts
 - [x] Deployed to Vercel
-- [ ] Editor canvas with drag-and-drop ← WEEK 2 START
-- [ ] Props editing panel
-- [ ] Responsive preview toggle
-- [ ] Export button wired to code generation engine
-- [ ] Shopify store connection (Week 3)
+- [x] Editor canvas with drag-and-drop
+- [x] Props editing panel (simple props: text, numbers, colors, toggles)
+- [x] Responsive preview toggle
+- [x] Export button wired to code generation engine
+- [x] Component order in export matches editor arrangement
+- [ ] Shopify dev store connection ← WEEK 3 START
+- [ ] Real product data in exported storefront
+- [ ] Cart functionality in exported storefront
 - [ ] Fashion theme polish (Week 4)
 
-## Week 1 completed
-- 31 source files, ~2,040 lines TypeScript
-- 8 components: AnnouncementBar, Navigation, HeroSection, FeatureSection, ProductGrid, CTABlock, Footer, ProductDetail
-- Generated output: ~30 files including 15 infrastructure, up to 10 components, 3+ routes
-- Routes always generated: _index.tsx, products.$handle.tsx, collections.$handle.tsx, cart.tsx
-- Loaders fall back to mock data when no Shopify credentials present
+## Week 2 completed
+- Full loop works: drag → edit props → export → npm install && npm run dev → working storefront
+- Component arrangement on canvas is respected in exported code
+- Simple props (text, numbers, colors, booleans) editable via props panel
+- Responsive preview toggles between desktop and mobile
+- Export produces downloadable zip via JSZip
 
-## Week 2 goal
-Build the visual editor UI — the browser interface where users compose storefronts.
-Three panels: left sidebar (component palette), center canvas (drag-and-drop), right panel (props editor).
-The editor state is a JSON array of components with props — the SAME format the code generation engine already consumes.
-At the end of Week 2, the full loop works: drag → edit → export → run.
+## Known issues
+- Complex array props (menu items, footer columns, social links) not editable in props panel — sensible defaults used. V2 improvement.
+- Some placeholder images may use broken URLs — use Unsplash CDN URLs as defaults
+- Sticky nav toggle effect may not be visible in editor preview, works in exported storefront
 
-## Key constraint for Week 2
-The editor must produce JSON in the exact format that src/codegen/ already expects.
-Do NOT refactor the code generation engine to fit the editor — make the editor fit the engine.
-Read src/codegen/ before building any editor state management.
+## Week 3 goal
+Connect the builder to a real Shopify dev store so exported storefronts fetch real product data.
+Three things must work by end of week:
+1. User pastes Shopify store domain + Storefront API token in a settings panel
+2. Product Grid and Product Detail components show real products from the connected store
+3. Exported storefront has a working cart — add to cart, update quantity, checkout redirect
 
-## Known issues from Week 1
-- Some images use placeholder URLs that may break (use Unsplash CDN URLs as defaults)
-- Nav alignment needs cleanup in exported storefront
+## Key constraints for Week 3
+- The Storefront API queries already exist in src/codegen/ (COLLECTION_QUERY, PRODUCT_QUERY, CART_QUERY). Do NOT rewrite them — wire them up.
+- The loaders already have fallback logic (if (!storefront) return mock data). The task is making the storefront connection work, not restructuring the data layer.
+- Store credentials go in .env.example in the export. The builder settings panel saves them to localStorage for preview purposes only — they are NOT baked into the exported code.
+- Read the existing query files and loader patterns before writing any new code.
